@@ -61,7 +61,7 @@ namespace cg
 	inline T& resource<T>::item(size_t item)
 	{
 		// TODO Lab: 1.02 Implement `cg::resource` class
-		return data.at(stride*y + x);
+		return data.at(item);
 	}
 	template<typename T>
 	inline T& resource<T>::item(size_t x, size_t y)
