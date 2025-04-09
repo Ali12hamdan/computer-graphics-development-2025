@@ -235,7 +235,7 @@ void cg::renderer::dx12_renderer::create_root_signature(const D3D12_STATIC_SAMPL
 												IID_PPV_ARGS(&root_signature)));
 }
 
-std::filesystem::path cg::renderer::dx12_renderer::get_shader_path(const std::string& shader_name)
+std::filesystem::path get_shader_path(const std::string& shader_name);
 {
 	WCHAR buffer[MAX_PATH];
 	GetModuleFileName(nullptr, buffer, MAX_PATH);
@@ -271,8 +271,8 @@ void cg::renderer::dx12_renderer::create_pso(const std::string& shader_name)
 {
 	auto vertex_shader = compile_shader(
 			get_shader_path(shader_name), "VSMain", "vs_5_0");
-	auto pixel_shader = compile_shader(
-			get_shader_path(shader_name), "PSMain", "ps_5_0");
+	// auto pixel_shader = compile_shader(
+	// 		get_shader_path(shader_name), "PSMain", "ps_5_0");
 
 	D3D12_INPUT_ELEMENT_DESC input_descs[] = {
 			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,

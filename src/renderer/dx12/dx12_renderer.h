@@ -16,6 +16,8 @@
 #include <iostream>
 #include <wrl.h>
 
+#include <filesystem>
+
 
 using namespace Microsoft::WRL;
 
@@ -127,8 +129,17 @@ namespace cg::renderer
 
 		void create_root_signature(const D3D12_STATIC_SAMPLER_DESC* sampler_descriptors, UINT num_sampler_descriptors);
 		static std::filesystem::path get_shader_path() ;
-		static ComPtr<ID3DBlob> compile_shader(const std::string& entrypoint, const std::string& target) ;
-		void create_pso();
+		// static ComPtr<ID3DBlob> compile_shader(const std::string& entrypoint, const std::string& target) ;
+
+		ComPtr<ID3DBlob> compile_shader(const std::filesystem::path& shader_path,
+			const std::string& entrypoint,
+			const std::string& target);
+
+
+		// void create_pso();
+
+		void create_pso(const std::string& shader_name);
+
 
 		void create_command_allocators();
 		void create_command_list();
