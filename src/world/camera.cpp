@@ -114,12 +114,12 @@ const DirectX::XMMATRIX camera::get_dxm_mvp_matrix() const
 const float4x4 cg::world::camera::get_projection_matrix() const
 {
 	// TODO Lab: 1.04 Implement `cg::world::camera` class
-	float f= 1.f/ tanf(angle_of_view/2.f);
+	float f = 1.f / tanf(angle_of_view / 2.f);
 	return float4x4{
-			{f/aspect_ratio, 0, 0, 0},
+			{f / aspect_ratio, 0, 0, 0},
 			{0, f, 0, 0},
-			{0, 0, z_far/(z_near-z_far), -1},
-			{0, 0, (z_far*z_near)/(z_near-z_far), 0},
+			{0, 0, z_far / (z_near - z_far), -1},
+			{0, 0, (z_far * z_near) / (z_near - z_far), 0},
 
 	};
 }
@@ -134,9 +134,9 @@ const float3 cg::world::camera::get_direction() const
 {
 	// TODO Lab: 1.04 Implement `cg::world::camera` class
 	return float3{
-		sin(theta)*cos(phi),
+		sin(theta) * cos(phi),
 		sin(phi),
-		-cos(theta)*cos(phi)
+		-cos(theta) * cos(phi)
 };
 }
 
@@ -149,7 +149,7 @@ const float3 cg::world::camera::get_right() const
 const float3 cg::world::camera::get_up() const
 {
 	// TODO Lab: 1.04 Implement `cg::world::camera` class
-	return cross(get_right(),get_direction());
+	return cross(get_right(), get_direction());
 }
 const float camera::get_theta() const
 {
