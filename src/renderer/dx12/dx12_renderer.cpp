@@ -167,10 +167,10 @@ void cg::renderer::dx12_renderer::create_command_allocators()
 void cg::renderer::dx12_renderer::create_command_list()
 {
 	THROW_IF_FAILED(device->CreateCommandList(
-		0, D3D12_COMMAND_LIST_TYPE_DIRECT,
-		command_allocators[0].Get(),
-		pipeline_state.Get(),
-		IID_PPV_ARGS(&command_list)));
+			0, D3D12_COMMAND_LIST_TYPE_DIRECT,
+			command_allocators[0].Get(),
+			pipeline_state.Get(),
+			IID_PPV_ARGS(&command_list)));
 }
 
 
@@ -235,7 +235,7 @@ void cg::renderer::dx12_renderer::create_root_signature(const D3D12_STATIC_SAMPL
 												IID_PPV_ARGS(&root_signature)));
 }
 
-std::filesystem::path cg::renderer::dx12_renderer::get_shader_path()
+std::filesystem::path cg::renderer::dx12_renderer::get_shader_path(const std::string& shader_name)
 {
 	WCHAR buffer[MAX_PATH];
 	GetModuleFileName(nullptr, buffer, MAX_PATH);
@@ -243,7 +243,7 @@ std::filesystem::path cg::renderer::dx12_renderer::get_shader_path()
 	return  shader_path;
 }
 
-ComPtr<ID3DBlob> cg::renderer::dx12_renderer::compile_shader(const std::string& entrypoint, const std::string& target)
+ComPtr<ID3DBlob> cg::renderer::dx12_renderer::compile_shader(const std::filesystem::path& shader_path, const std::string& entrypoint, const std::string& target)
 {
 	ComPtr<ID3DBlob> shader, error;
 	UINT compile_flags = 0;
@@ -267,26 +267,26 @@ ComPtr<ID3DBlob> cg::renderer::dx12_renderer::compile_shader(const std::string& 
 	return shader;
 }
 
-void cg::renderer::dx12_renderer::create_pso()
+void cg::renderer::dx12_renderer::create_pso(const std::string& shader_name)
 {
 	auto vertex_shader = compile_shader(
-		get_shader_path(shader_name), "VSMain", "vs_5_0");
+			get_shader_path(shader_name), "VSMain", "vs_5_0");
 	auto pixel_shader = compile_shader(
-		get_shader_path(shader_name), "PSMain", "ps_5_0");
+			get_shader_path(shader_name), "PSMain", "ps_5_0");
 
 	D3D12_INPUT_ELEMENT_DESC input_descs[] = {
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,
-		 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-		{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT,
-		 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,
-		 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-		{"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT,
-		 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-		{"COLOR", 1, DXGI_FORMAT_R32G32B32_FLOAT,
-		 0, 44, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-		{"COLOR", 2, DXGI_FORMAT_R32G32B32_FLOAT,
-		 0, 56, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,
+			 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+			{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT,
+			 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+			{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,
+			 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+			{"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT,
+			 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+			{"COLOR", 1, DXGI_FORMAT_R32G32B32_FLOAT,
+			 0, 44, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+			{"COLOR", 2, DXGI_FORMAT_R32G32B32_FLOAT,
+			 0, 56, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
 	};
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pso_desc{};
@@ -312,12 +312,12 @@ void cg::renderer::dx12_renderer::create_pso()
 void cg::renderer::dx12_renderer::create_resource_on_upload_heap(ComPtr<ID3D12Resource>& resource, UINT size, const std::wstring& name)
 {
 	THROW_IF_FAILED(device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(size),
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&resource)));
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(size),
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&resource)));
 	if (!name.empty()) {
 		resource->SetName(name.c_str());
 	}
@@ -555,17 +555,17 @@ void cg::renderer::descriptor_heap::create_heap(ComPtr<ID3D12Device>& device, D3
 D3D12_CPU_DESCRIPTOR_HANDLE cg::renderer::descriptor_heap::get_cpu_descriptor_handle(UINT index) const
 {
 	return CD3DX12_CPU_DESCRIPTOR_HANDLE(
-		heap->GetCPUDescriptorHandleForHeapStart(),
-		static_cast<INT>(index),
-		descriptor_size);
+			heap->GetCPUDescriptorHandleForHeapStart(),
+			static_cast<INT>(index),
+			descriptor_size);
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE cg::renderer::descriptor_heap::get_gpu_descriptor_handle(UINT index) const
 {
 	return CD3DX12_GPU_DESCRIPTOR_HANDLE(
-		heap->GetGPUDescriptorHandleForHeapStart(),
-		static_cast<INT>(index),
-		descriptor_size);
+			heap->GetGPUDescriptorHandleForHeapStart(),
+			static_cast<INT>(index),
+			descriptor_size);
 }
 ID3D12DescriptorHeap* cg::renderer::descriptor_heap::get() const
 {
